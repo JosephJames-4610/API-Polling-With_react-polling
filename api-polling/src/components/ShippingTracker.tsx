@@ -1,12 +1,27 @@
-import Paper from '@mui/material/Paper';
+import React from 'react';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import InProgress from './InProgress';
-import DeliveryTimeline from './DeliveryTimeline';
+import StatusPolling from './StatusPolling';
 
 export default function ShippingTracker() {
+  const [disableSearch, setDisableSearch] = React.useState<boolean>(true);
+  const [trackingNumber, setTrackingNumber] = React.useState<string>('');
+  const [triggerPolling, setTriggerPolling] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    if (trackingNumber !== '' && trackingNumber.length > 6) { setDisableSearch(false); }
+    else setDisableSearch(true);
+  }, [trackingNumber])
+
+  const clearHandle = () => {
+    setTrackingNumber(''); setTriggerPolling(false);
+  }
+  const searchHandle = () => {
+    setTriggerPolling(true);
+  }
+
   return (
     <>
        <Container maxWidth={false} sx={{ display: 'flex', m: 4, justifyContent: 'center', alignItems: 'center', width: '100vw' }} >
@@ -28,49 +43,13 @@ export default function ShippingTracker() {
             id="outlined-required"
             label="Required"
             placeholder="Tracking number"
-            
+            value={trackingNumber}
+            onChange={(e: any) => { setTrackingNumber(e.target.value) } }
           />          
-          <Button variant="contained" sx={{ mx: 4, color: 'white', width: 140, height: 46 }}>Search</Button>
-          <Button variant="contained" sx={{ color: 'white', width: 140, height: 46 }}>Clear</Button>
+          <Button variant="contained" onClick={searchHandle} disabled={disableSearch} sx={{ mx: 4, color: 'white', width: 140, height: 46 }}>Search</Button>
+          <Button variant="contained" onClick={clearHandle} sx={{ color: 'white', width: 140, height: 46 }}>Clear</Button>
        </Container>
-       <Container maxWidth={false} sx={{ display: 'flex', m: 4, justifyContent: 'center', alignItems: 'center', width: '100vw' }} >
-        <Paper elevation={6} sx={{ display: 'flex', flexDirection: 'column', my: 2, justifyContent: 'center', alignItems: 'center', width: 800 }}>
-          <Typography
-              variant="h5"
-              noWrap
-              sx={{
-                m: 4,
-                mt: 8,
-                display: 'flex',
-                letterSpacing: '.3rem',
-                color: 'primary',
-                textDecoration: 'none',
-              }}
-            >
-              Getting shipping status from Fedex...
-            </Typography>
-            <InProgress />
-          </Paper>
-       </Container>
-       <Container maxWidth={false} sx={{ display: 'flex', m: 4, justifyContent: 'center', alignItems: 'center', width: '100vw' }} >
-        <Paper elevation={6} sx={{ display: 'flex', flexDirection: 'column', my: 2, justifyContent: 'center', alignItems: 'center', width: 800 }}>
-          <Typography
-              variant="h5"
-              noWrap
-              sx={{
-                m: 4,
-                mt: 8,
-                display: 'flex',
-                letterSpacing: '.3rem',
-                color: 'primary',
-                textDecoration: 'none',
-              }}
-            >
-              Shipping Status
-            </Typography>
-            <DeliveryTimeline />
-          </Paper>
-       </Container>
+       {triggerPolling && <StatusPolling trackingNumber={trackingNumber}/>}
     </>
   )
 }
